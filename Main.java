@@ -9,6 +9,7 @@ public class Main {
 	public static void main(String[] args) {
 		Comparator<Animal> compare = new AnimalComparer();
 		PriorityQueue<Animal> queue= new PriorityQueue<Animal>(4, compare);
+		
 		Scanner scan = new Scanner(System.in);
 		System.out.println("Enter Total Final Time for Simulation:");
 		int final_time = scan.nextInt();
@@ -29,8 +30,10 @@ public class Main {
 		Animal three = new Carnivore(scan.nextInt(), scan.nextInt(), scan.nextInt(), health, "First Carnivore");
 		System.out.println("Enter x, y position and timestamp for Second Carnivore:");
 		Animal four = new Carnivore(scan.nextInt(), scan.nextInt(), scan.nextInt(), health, "Second Carnivore");
-		
+		System.out.println();
 		System.out.println("The Simulation Begins -");
+		
+		
 		queue.add(one);
 		queue.add(two);
 		queue.add(three);
@@ -41,6 +44,7 @@ public class Main {
 		if (two.getTS()>max_TS) max_TS=two.getTS();
 		if (three.getTS()>max_TS) max_TS=three.getTS();
 		if (four.getTS()>max_TS) max_TS=four.getTS();
+		
 		int num_carn=2, num_herb=2;
 		int turn=0;
 		Random rand = new Random();
@@ -49,31 +53,44 @@ public class Main {
 		while(turn<final_time && (num_herb>0 || num_carn>0)){
 			Animal current = queue.remove();
 			if (current instanceof Herbivore){
+				
 				current.turn(num_carn, land1, land2, three, four);
 			}
 			else current.turn(num_herb, land1, land2, one, two);
-			
-			current.setTS(rand.nextInt((final_time - (max_TS+1))) + max_TS);
-			if (current.getTS()==final_time-1){
-				current.kill();
-			}
-			else{
-				if (current.getTS()>max_TS) max_TS=current.getTS();
-			}
 			
 			System.out.println("It is " + current.getName());
 			
 			if (current.getHealth()>0){
 				System.out.println("It's health is " + current.getHealth());
+				
 			}
-			else{
+			else {
 				System.out.println("It is dead");
 				if (current instanceof Herbivore){
 					num_herb--;
 				}
 				else num_carn--;
 			}
-			queue.add(current);
+			
+			current.setTS(rand.nextInt((final_time - (max_TS))) + max_TS);
+			
+			if (current.getTS()==max_TS) current.setTS(max_TS+1);
+			
+			if (current.getTS()==final_time-1){
+				current.kill();
+				if (current instanceof Herbivore){
+					num_herb--;
+				}
+				else num_carn--;
+	
+			}
+			else{
+				if (current.getTS()>max_TS) max_TS=current.getTS();
+			}	
+			
+			
+			if (current.getHealth()>0) queue.add(current);
+			
 			turn++;
 			
 			System.out.println();
