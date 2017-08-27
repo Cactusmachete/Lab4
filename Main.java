@@ -44,7 +44,6 @@ public class Main {
 		if (two.getTS()>max_TS) max_TS=two.getTS();
 		if (three.getTS()>max_TS) max_TS=three.getTS();
 		if (four.getTS()>max_TS) max_TS=four.getTS();
-		
 		int num_carn=2, num_herb=2;
 		int turn=0;
 		Random rand = new Random();
@@ -53,15 +52,30 @@ public class Main {
 		while(turn<final_time && (num_herb>0 || num_carn>0)){
 			Animal current = queue.remove();
 			if (current instanceof Herbivore){
-				
 				current.turn(num_carn, land1, land2, three, four);
 			}
 			else current.turn(num_herb, land1, land2, one, two);
 			
 			System.out.println("It is " + current.getName());
-			
 			if (current.getHealth()>0){
 				System.out.println("It's health is " + current.getHealth());
+				current.setTS(rand.nextInt((final_time - (max_TS))) + max_TS);
+				if (current.getTS()==max_TS) current.setTS(max_TS+1);
+				if (current.getTS()==final_time-1){
+					int[] old_pos = {current.getPos()[0], current.getPos()[1]};
+					int[] away={1000000000, 1000000000};
+					int old_dist = (int) current.getDist(away);
+					current.kill();
+					current.move(old_pos, old_dist);
+					if (current instanceof Herbivore){
+						num_herb--;
+					}
+					else num_carn--;
+		
+				}
+				else{
+					if (current.getTS()>max_TS) max_TS=current.getTS();
+				}	
 				
 			}
 			else {
@@ -72,21 +86,7 @@ public class Main {
 				else num_carn--;
 			}
 			
-			current.setTS(rand.nextInt((final_time - (max_TS))) + max_TS);
 			
-			if (current.getTS()==max_TS) current.setTS(max_TS+1);
-			
-			if (current.getTS()==final_time-1){
-				current.kill();
-				if (current instanceof Herbivore){
-					num_herb--;
-				}
-				else num_carn--;
-	
-			}
-			else{
-				if (current.getTS()>max_TS) max_TS=current.getTS();
-			}	
 			
 			
 			if (current.getHealth()>0) queue.add(current);
@@ -405,7 +405,7 @@ class Carnivore extends Animal{
 		else{
 			
 			if(this.getDist(an1.getPos())<=1 || this.getDist(an2.getPos())<=1){
-				if(this.getDist(an1.getPos())<this.getDist(an2.getPos())){
+				if(this.getDist(an1.getPos())<=this.getDist(an2.getPos())){
 					an1.kill();
 					this.health = this.health + (2/3)*an1.health;
 		
